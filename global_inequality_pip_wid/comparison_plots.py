@@ -47,10 +47,10 @@ def create_scatter_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_mean
 
     print(f"\nPlotting {len(plot_df)} countries with data from both sources")
 
-    # Identify the 5 most populous countries (by WID population)
-    top5_countries = plot_df.nlargest(5, 'wid_population')
-    print(f"\nTop 5 most populous countries:")
-    for idx, row in top5_countries.iterrows():
+    # Identify the 10 most populous countries (by WID population)
+    top10_countries = plot_df.nlargest(10, 'wid_population')
+    print(f"\nTop 10 most populous countries:")
+    for idx, row in top10_countries.iterrows():
         print(f"  {row['country']}: {row['wid_population']:,.0f}")
 
     # Create figure
@@ -60,21 +60,21 @@ def create_scatter_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_mean
     ax.set_xscale('log')
     ax.set_yscale('log')
 
-    # Separate data: top 5 most populous vs others
-    top5_mask = plot_df['country'].isin(top5_countries['country'])
-    other_countries = plot_df[~top5_mask]
-    top5_data = plot_df[top5_mask]
+    # Separate data: top 10 most populous vs others
+    top10_mask = plot_df['country'].isin(top10_countries['country'])
+    other_countries = plot_df[~top10_mask]
+    top10_data = plot_df[top10_mask]
 
     # Plot other countries (regular scatter)
     ax.scatter(other_countries['pip_mean'], other_countries['wid_mean'],
                alpha=0.6, s=50, color='#2E86AB', edgecolors='white', linewidth=0.5, zorder=3)
 
-    # Plot top 5 countries with highlighting
-    ax.scatter(top5_data['pip_mean'], top5_data['wid_mean'],
+    # Plot top 10 countries with highlighting
+    ax.scatter(top10_data['pip_mean'], top10_data['wid_mean'],
                alpha=0.9, s=150, color='#E63946', edgecolors='black', linewidth=1.5, zorder=4)
 
-    # Add labels for top 5 countries
-    for idx, row in top5_data.iterrows():
+    # Add labels for top 10 countries
+    for idx, row in top10_data.iterrows():
         ax.annotate(row['country'],
                    xy=(row['pip_mean'], row['wid_mean']),
                    xytext=(10, 10), textcoords='offset points',
@@ -271,13 +271,17 @@ def create_interactive_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_
 
     print(f"\nCreating interactive plot with {len(plot_df)} countries")
 
-    # Identify the 5 most populous countries (by WID population)
-    top5_countries = plot_df.nlargest(5, 'wid_population')
+    # Identify the 10 most populous countries (by WID population)
+    top10_countries = plot_df.nlargest(10, 'wid_population')
 
-    # Separate data: top 5 most populous vs others
-    top5_mask = plot_df['country'].isin(top5_countries['country'])
-    other_countries = plot_df[~top5_mask]
-    top5_data = plot_df[top5_mask]
+    print(f"\nTop 10 most populous countries:")
+    for idx, row in top10_countries.iterrows():
+        print(f"  {row['country']}: {row['wid_population']:,.0f}")
+
+    # Separate data: top 10 most populous vs others
+    top10_mask = plot_df['country'].isin(top10_countries['country'])
+    other_countries = plot_df[~top10_mask]
+    top10_data = plot_df[top10_mask]
 
     # Fit regression lines in log-log space
     X_log = np.log(plot_df[['pip_mean']].values)
@@ -368,25 +372,25 @@ def create_interactive_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_
         hovertemplate='%{text}<extra></extra>'
     ))
 
-    # Add scatter for top 5 countries
-    hover_text_top5 = []
-    for idx, row in top5_data.iterrows():
+    # Add scatter for top 10 countries
+    hover_text_top10 = []
+    for idx, row in top10_data.iterrows():
         text = (f"<b>{row['country']}</b> (Pop: {row['wid_population']/1e9:.2f}B)<br>"
                 f"PIP: ${row['pip_mean']:.2f}/day (${row['pip_mean']*365:.0f}/year)<br>"
                 f"WID: ${row['wid_mean']:.2f}/day (${row['wid_mean']*365:.0f}/year)<br>"
                 f"WID/PIP ratio: {row['wid_mean']/row['pip_mean']:.2f}x")
-        hover_text_top5.append(text)
+        hover_text_top10.append(text)
 
     fig.add_trace(go.Scatter(
-        x=top5_data['pip_mean'],
-        y=top5_data['wid_mean'],
+        x=top10_data['pip_mean'],
+        y=top10_data['wid_mean'],
         mode='markers+text',
         marker=dict(size=15, color='#E63946', opacity=0.9, line=dict(color='black', width=1.5)),
-        name='Top 5 most populous',
-        text=top5_data['country'],
+        name='Top 10 most populous',
+        text=top10_data['country'],
         textposition='top center',
         textfont=dict(size=11, color='black'),
-        customdata=hover_text_top5,
+        customdata=hover_text_top10,
         hovertemplate='%{customdata}<extra></extra>'
     ))
 

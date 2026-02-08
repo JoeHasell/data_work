@@ -317,6 +317,8 @@ def create_interactive_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_
     max_val = plot_df['pip_mean'].max() * 1.2
     x_range = np.array([min_val, max_val])
 
+    reference_line_annotations = []
+
     for mult in multipliers:
         color = 'red' if mult == 1 else 'lightgray'
         dash = 'dash' if mult == 1 else 'dot'
@@ -333,6 +335,22 @@ def create_interactive_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_
             showlegend=False,
             hoverinfo='skip'
         ))
+
+        # Add text annotation on the line (in log space, position at ~70% along x-axis)
+        label_x = np.exp(np.log(min_val) + 0.7 * (np.log(max_val) - np.log(min_val)))
+        label_y = label_x * mult
+
+        reference_line_annotations.append(
+            dict(
+                x=np.log10(label_x),
+                y=np.log10(label_y),
+                text=label_text,
+                showarrow=False,
+                font=dict(size=10, color=color if mult == 1 else 'gray'),
+                bgcolor='rgba(255,255,255,0.7)',
+                borderpad=2
+            )
+        )
 
     # Add regression lines
     fig.add_trace(go.Scatter(
@@ -453,7 +471,7 @@ def create_interactive_plot(pip_wid_comparison, output_file='outputs/pip_vs_wid_
                 borderpad=10,
                 font=dict(size=11)
             )
-        ]
+        ] + reference_line_annotations
     )
 
     # Save to HTML

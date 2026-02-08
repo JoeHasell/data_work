@@ -118,5 +118,63 @@ The WID income data is given in local currencies (annual) and needs to be:
 - MLD analysis now compares all three: PIP, WID_per_adult, WID_per_capita
 - Visualization shows three bars for complete comparison
 
+### Session 2 Continuation (Feb 8, 2026) - Interactive Visualizations & Country-Level Analysis
+
+**Files Created:**
+1. `comparison_plots.py` - Interactive scatter plots comparing PIP vs WID mean incomes
+2. `compare_country_mlds.py` - Country-level within-country MLD comparison
+
+**Interactive Visualizations Developed:**
+
+1. **Mean Income Comparison Plot** (`pip_vs_wid_mean_income_interactive.html`):
+   - Compares PIP vs WID per capita mean incomes across 211 countries
+   - Log-log scale with readable dollar tick marks ($1, $2, $5, $10, etc.)
+   - Reference lines (1x, 2x, 3x, 5x, 7x, 10x, 20x) labeled directly on lines
+   - Regression lines (weighted and unweighted by population)
+   - Top 10 most populous countries highlighted and labeled
+   - Interactive tooltips showing daily and annual income, ratios
+   - Key finding: WID systematically reports ~2.78x higher mean incomes (median ratio: 2.47x)
+   - Regression: Unweighted WID = 2.15 × PIP^1.05, Weighted WID = 3.68 × PIP^0.90
+
+2. **Within-Country MLD Comparison Plot** (`pip_vs_wid_country_mlds.html`):
+   - Compares within-country inequality (MLD) for each country
+   - Reference lines (1x, 2x, 3x, 5x, 7x) with direct labels
+   - Top 10 most populous countries highlighted
+   - Interactive tooltips with MLD values and mean incomes
+   - **Critical finding**: WID shows higher within-country inequality in 100% of countries (211/211)
+   - Most countries cluster around 2x-3x lines
+   - Latin American outliers (El Salvador, Mexico, Peru, Chile, Colombia) show 5x-7x ratios
+
+**Key Insights:**
+
+**MLD Decomposition Results (2023):**
+- PIP (per capita): Total MLD = 0.6945, 69.2% between-country, 30.8% within-country
+- WID (per adult): Total MLD = 0.9985, 28.3% between-country, 71.7% within-country
+- WID (per capita): Total MLD = 1.1035, 35.7% between-country, 64.3% within-country
+
+**Impact of Per Capita Adjustment:**
+- Converting WID from per adult to per capita increases between-country share by 7.4 percentage points
+- Gap between PIP and WID per capita remains substantial: 33.5 percentage points
+- Average adjustment factor: adult/total population ratio ≈ 0.668
+
+**Systematic Patterns:**
+- WID consistently reports higher mean incomes than PIP (median: 2.47x, mean: 2.78x)
+- WID consistently reports higher within-country inequality than PIP (100% of countries)
+- Average within-country MLD: PIP = 0.247, WID = 0.730 (~3x higher)
+- Most populous countries follow similar patterns (India, China, USA, Indonesia, Pakistan)
+- Latin America shows exceptionally large WID-PIP gaps for within-country inequality
+
+**Technical Notes:**
+- All visualizations are interactive HTML using Plotly
+- Reference lines labeled directly on plots (not in legends)
+- Population-weighted and unweighted regressions both included where relevant
+- Logged power law relationships for mean income (log-log regression)
+- Linear relationships for MLD comparison
+
+**Outputs:**
+- `outputs/inequality_decomposition.png` - Three-bar MLD decomposition chart
+- `outputs/pip_vs_wid_mean_income_interactive.html` - Interactive mean income scatter plot
+- `outputs/pip_vs_wid_country_mlds.html` - Interactive within-country MLD scatter plot
+
 
 

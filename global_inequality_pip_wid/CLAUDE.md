@@ -176,5 +176,68 @@ The WID income data is given in local currencies (annual) and needs to be:
 - `outputs/pip_vs_wid_mean_income_interactive.html` - Interactive mean income scatter plot
 - `outputs/pip_vs_wid_country_mlds.html` - Interactive within-country MLD scatter plot
 
+### Session 2 Continuation (Feb 8, 2026) - Counterfactual Inequality Analysis
+
+**File Created:**
+- `counterfactual_analysis.py` - Swap inequality distributions between countries to assess sensitivity
+
+**Methodology:**
+Created a counterfactual analysis framework to understand how individual countries' inequality patterns affect global inequality decomposition. The approach:
+1. Takes the inequality distribution (shape) from a source country
+2. Rescales it to match the target country's mean income
+3. Replaces the target country's actual distribution in the global data
+4. Recalculates global MLD decomposition
+
+This allows asking questions like "What if Mexico had the US's inequality distribution?" while preserving Mexico's mean income.
+
+**Counterfactual Scenarios Analyzed:**
+
+Three scenarios were run using WID per capita data:
+
+1. **Mexico→US**: Replace Mexico's inequality with US pattern
+   - Mexico: Population 130M, original MLD = 1.946
+   - US: MLD = 0.741
+   - Impact: +0.64 pp increase in between-country share (35.7% → 36.4%)
+   - Total MLD: 1.1035 → 1.0842
+
+2. **Brazil→US**: Replace Brazil's inequality with US pattern
+   - Brazil: Population 211M, original MLD = 1.676
+   - US: MLD = 0.741
+   - Impact: +0.81 pp increase in between-country share (35.7% → 36.5%)
+   - Total MLD: 1.1035 → 1.0791
+
+3. **India→Pakistan**: Replace India's inequality with Pakistan's pattern
+   - India: Population 1.44B, original MLD = 0.659
+   - Pakistan: MLD = 0.418
+   - Impact: **+1.44 pp** increase in between-country share (35.7% → 37.2%)
+   - Total MLD: 1.1035 → 1.0608
+
+**Key Findings:**
+
+- **India has the largest global impact** due to its enormous population (1.44 billion)
+  - Despite having moderate inequality (MLD=0.659), its size makes it globally influential
+  - Reducing India's inequality to Pakistan's level shifts global decomposition by 1.44 pp
+
+- **Latin American countries** (Mexico, Brazil) have very high inequality (MLD ~1.7-1.9)
+  - But smaller populations limit their global impact
+  - Brazil's larger population (211M vs 130M) gives it more influence than Mexico
+
+- **All counterfactuals reduce global within-country inequality**
+  - Demonstrates that high-inequality countries (especially populous ones) are key drivers
+  - Reducing inequality in these countries would meaningfully shift global inequality toward between-country component
+
+- **Population matters more than inequality level**
+  - India's 1.44pp impact > Brazil's 0.81pp impact, despite Brazil having 2.5x higher inequality
+  - Population weighting in MLD decomposition amplifies effects of populous countries
+
+**Output:**
+- `outputs/counterfactual_decomposition.png` - Four-bar chart showing original and three counterfactual scenarios
+
+**Technical Implementation:**
+- Function preserves target country's mean income and population structure
+- Only changes the shape of within-country distribution
+- Between-country component remains unchanged (as expected, since means are preserved)
+- Validates that within-country component changes drive the results
+
 
 

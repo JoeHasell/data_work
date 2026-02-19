@@ -239,5 +239,63 @@ Three scenarios were run using WID per capita data:
 - Between-country component remains unchanged (as expected, since means are preserved)
 - Validates that within-country component changes drive the results
 
+### Session 3 (Feb 19, 2026) - Shape vs Mean Analysis
+
+**File Created:**
+- `shape_vs_mean_analysis.py` - Isolate whether PIP-WID gap is driven by mean incomes or distribution shapes
+
+**Motivation:**
+Previous analysis showed WID systematically reports 2.78x higher mean incomes than PIP (median: 2.47x), with population-weighted differences varying systematically between rich and poor countries. This raised the question: How much of the 33.5 percentage point gap in between-country share is due to different mean incomes versus different within-country inequality patterns?
+
+**Methodology:**
+Created two key counterfactuals by swapping distribution shapes between sources while preserving means:
+1. **WID shapes with PIP means**: Take WID's percentile distribution for each country, rescale to match PIP's mean income
+2. **PIP shapes with WID means**: Take PIP's percentile distribution for each country, rescale to match WID's mean income
+
+This isolates the contribution of:
+- Distribution shape differences (within-country inequality patterns)
+- Mean income differences (systematic level differences between sources)
+
+**Results:**
+
+**Original Decompositions:**
+- PIP: 69.2% between-country, 30.8% within-country (Total MLD = 0.6945)
+- WID per capita: 35.7% between-country, 64.3% within-country (Total MLD = 1.1035)
+- **Gap: 33.50 percentage points**
+
+**Counterfactual 1: WID Shapes with PIP Means**
+- Between-country: 40.4%, Within-country: 59.6% (Total MLD = 1.1903)
+- Gap from WID original: **4.69 pp** (very close to WID)
+- Gap from PIP original: 28.81 pp (far from PIP)
+- **Interpretation**: Even with PIP's lower mean incomes, WID's distribution shapes preserve the low between-country share
+
+**Counterfactual 2: PIP Shapes with WID Means**
+- Between-country: 64.8%, Within-country: 35.2% (Total MLD = 0.6080)
+- Gap from PIP original: **4.38 pp** (very close to PIP)
+- Gap from WID original: 29.12 pp (far from WID)
+- **Interpretation**: Even with WID's higher mean incomes, PIP's distribution shapes preserve the high between-country share
+
+**Key Findings:**
+
+**Distribution shapes drive ~87% of the gap:**
+- Mean income differences contribute: ~4.5 pp (13% of 33.5 pp gap)
+- Distribution shape differences contribute: ~29 pp (87% of 33.5 pp gap)
+- **Conclusion**: The PIP-WID disagreement is fundamentally about different within-country inequality patterns, not different mean income levels
+
+**Implications:**
+- WID shows much higher within-country inequality than PIP (within-country MLD: 0.709 vs 0.214, 3.3x higher)
+- This higher within-country inequality in WID is what drives its conclusion that most global inequality is within-country
+- The systematic mean income differences (WID reporting 2.78x higher means) have only a minor effect on the decomposition
+- Population-weighted variation in mean income ratios across rich/poor countries contributes minimally
+
+**Output:**
+- `outputs/shape_vs_mean_decomposition.png` - Four-bar comparison showing original PIP, original WID, and both counterfactuals
+
+**Technical Notes:**
+- Rescaling preserves country-specific means exactly (verified with spot checks)
+- Uses 211 common countries present in both PIP and WID
+- Maintains each source's population structure (important for per capita calculations)
+- Within-country MLD preserved exactly when rescaling (only between-country component affected by mean changes)
+
 
 

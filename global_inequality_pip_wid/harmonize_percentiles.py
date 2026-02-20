@@ -152,21 +152,10 @@ def process_wid_per_adult(income_df, country_map_df, conversion_df, year=2023):
     income_df = income_df.dropna(subset=['country_name'])
     print(f"After country mapping: {len(income_df):,} rows")
 
-    # Calculate population for each percentile bin using ADULT population
-    # pop = adult_pop * (p_high - p_low)
-    income_df['pop'] = income_df['adult_pop'] * (income_df['p_high'] - income_df['p_low'])
-
-    # Merge with conversion factors (PPP)
-    conversion_overall = conversion_df[conversion_df['percentile'] == 'p0p100'][['country', 'ppp']]
-    income_df = income_df.merge(
-        conversion_overall,
-        on='country',
-        how='left'
-    )
-
-    # Convert local currency to international dollars and annual to daily
-    # Use avg_per_adult column
-    income_df['average'] = income_df['avg_per_adult'] / income_df['ppp'] / 365
+    # Use bin-specific population (already calculated in create_wid_per_capita.py)
+    # Note: avg_per_adult is already PPP-adjusted and in daily international dollars
+    income_df['pop'] = income_df['bin_adult_pop']
+    income_df['average'] = income_df['avg_per_adult']
 
     # Add source column
     income_df['source'] = 'WID_per_adult'
@@ -203,21 +192,10 @@ def process_wid_per_capita(income_df, country_map_df, conversion_df, year=2023):
     # Remove rows where country name is missing (not in PIP)
     income_df = income_df.dropna(subset=['country_name'])
 
-    # Calculate population for each percentile bin using TOTAL population
-    # pop = total_pop * (p_high - p_low)
-    income_df['pop'] = income_df['total_pop'] * (income_df['p_high'] - income_df['p_low'])
-
-    # Merge with conversion factors (PPP)
-    conversion_overall = conversion_df[conversion_df['percentile'] == 'p0p100'][['country', 'ppp']]
-    income_df = income_df.merge(
-        conversion_overall,
-        on='country',
-        how='left'
-    )
-
-    # Convert local currency to international dollars and annual to daily
-    # Use avg_per_capita column
-    income_df['average'] = income_df['avg_per_capita'] / income_df['ppp'] / 365
+    # Use bin-specific population (already calculated in create_wid_per_capita.py)
+    # Note: avg_per_capita is already PPP-adjusted and in daily international dollars
+    income_df['pop'] = income_df['bin_total_pop']
+    income_df['average'] = income_df['avg_per_capita']
 
     # Add source column
     income_df['source'] = 'WID_per_capita'

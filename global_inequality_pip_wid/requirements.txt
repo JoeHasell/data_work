@@ -1,0 +1,15 @@
+# Global Inequality Analysis - Python Dependencies
+
+# Data manipulation
+pandas>=1.3.4
+numpy>=1.21.4
+
+# Data formats
+pyarrow>=10.0.1
+
+# Visualization
+matplotlib>=3.5.0
+plotly>=5.4.0
+
+# Optional: For reading Feather files (included in pyarrow)
+# Note: PIP data is downloaded as .feather format

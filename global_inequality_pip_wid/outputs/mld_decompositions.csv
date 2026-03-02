@@ -1,0 +1,5 @@
+analysis_id,dataset,income_concept,population_basis,income_timing,num_countries,total_population,global_mean_income_daily,total_mld,between_country_mld,within_country_mld,between_country_share,within_country_share
+PIP_per_capita,PIP,Consumption/Income,Per capita,Post-tax equivalent,218,8064976693.55735,21.10887276237264,0.6945124537510687,0.4806978971824375,0.2138145565686313,0.6921371885934994,0.3078628114065007
+WID_pretax_per_adult,WID,Pre-tax national income,Per adult,Pre-tax,211,5421513219.0,82.68857094526804,1.3011202478428783,0.2824911547892761,1.0186290930536022,0.21711379502211037,0.7828862049778896
+WID_pretax_per_capita,WID,Pre-tax national income,Per capita,Pre-tax,211,8087556769.0,55.43063052623,1.3927940561223284,0.3941791650137859,0.9986148911085424,0.28301324469406364,0.7169867553059363
+WID_posttax_per_capita,WID,Post-tax disposable income,Per capita,Post-tax,211,8087556769.0,55.43019391213919,0.930004207538601,0.3941907273862715,0.5358134801523295,0.4238590795514332,0.5761409204485668

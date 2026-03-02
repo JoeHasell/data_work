@@ -10,6 +10,7 @@ while preserving each source's mean incomes, helping isolate the impact of:
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from mld_decomposition import calculate_mld_decomposition
 
 
 def calculate_country_mean(country_df):
@@ -89,56 +90,15 @@ def rescale_distribution_to_mean(df, target_source, new_mean_source):
     return result_df
 
 
-def calculate_mld_within_country(country_df, country_mean):
-    """Calculate MLD within a single country."""
-    valid_df = country_df[country_df['average'] > 0].copy()
-
-    if len(valid_df) == 0 or country_mean <= 0:
-        return 0.0
-
-    total_pop = valid_df['pop'].sum()
-    mld = ((valid_df['pop'] / total_pop) * np.log(country_mean / valid_df['average'])).sum()
-
-    return mld
-
-
 def decompose_mld(df):
     """Decompose MLD into between-country and within-country components."""
-    # Calculate overall mean income
-    global_mean = (df['pop'] * df['average']).sum() / df['pop'].sum()
-    total_pop = df['pop'].sum()
-
-    # Calculate country-level statistics
-    country_stats = df.groupby('country').apply(
-        lambda x: pd.Series({
-            'population': x['pop'].sum(),
-            'mean_income': (x['pop'] * x['average']).sum() / x['pop'].sum()
-        })
-    ).reset_index()
-
-    # Between-country inequality
-    valid_countries = country_stats[country_stats['mean_income'] > 0].copy()
-    mld_between = (
-        (valid_countries['population'] / total_pop) *
-        np.log(global_mean / valid_countries['mean_income'])
-    ).sum()
-
-    # Within-country inequality
-    mld_within = 0.0
-    for country in valid_countries['country']:
-        country_df = df[df['country'] == country]
-        country_pop = country_df['pop'].sum()
-        country_mean = (country_df['pop'] * country_df['average']).sum() / country_pop
-
-        country_mld = calculate_mld_within_country(country_df, country_mean)
-        mld_within += (country_pop / total_pop) * country_mld
-
-    mld_total = mld_between + mld_within
+    # Use shared MLD calculation
+    results = calculate_mld_decomposition(df, income_col='average', pop_col='pop', country_col='country')
 
     return {
-        'total': mld_total,
-        'between': mld_between,
-        'within': mld_within
+        'total': results['total_mld'],
+        'between': results['between_mld'],
+        'within': results['within_mld']
     }
 
 

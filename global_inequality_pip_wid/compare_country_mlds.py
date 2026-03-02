@@ -9,6 +9,7 @@ scatter plot to compare them.
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+from mld_decomposition import MIN_INCOME
 
 
 def calculate_mld_within_country(country_df, country_mean):
@@ -24,16 +25,17 @@ def calculate_mld_within_country(country_df, country_mean):
     Returns:
         float: MLD within this country
     """
-    # Avoid log(0) by filtering out zero or very small incomes
-    valid_df = country_df[country_df['average'] > 0].copy()
+    # Replace zeros with minimum income floor
+    country_df = country_df.copy()
+    country_df.loc[country_df['average'] <= 0, 'average'] = MIN_INCOME
 
-    if len(valid_df) == 0 or country_mean <= 0:
+    if country_mean <= 0:
         return np.nan
 
-    total_pop = valid_df['pop'].sum()
+    total_pop = country_df['pop'].sum()
 
     # Calculate MLD: Σ (n_i/N) * ln(μ/μ_i)
-    mld = ((valid_df['pop'] / total_pop) * np.log(country_mean / valid_df['average'])).sum()
+    mld = ((country_df['pop'] / total_pop) * np.log(country_mean / country_df['average'])).sum()
 
     return mld
 

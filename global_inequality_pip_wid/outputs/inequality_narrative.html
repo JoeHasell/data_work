@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Inequality: PIP vs WID Analysis</title>
+
+    <!-- Reveal.js CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
+
+    <!-- Custom styling -->
+    <style>
+        .reveal {
+            font-size: 32px;
+        }
+
+        .reveal h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 0.5em;
+        }
+
+        .reveal h2 {
+            font-size: 1.8em;
+            color: #34495e;
+            margin-bottom: 0.8em;
+        }
+
+        .reveal h3 {
+            font-size: 1.3em;
+            color: #7f8c8d;
+            margin-bottom: 0.5em;
+        }
+
+        .reveal p, .reveal li {
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .reveal ul {
+            margin-top: 1em;
+        }
+
+        .reveal li {
+            margin-bottom: 0.5em;
+        }
+
+        /* Slide-specific styles */
+        .title-slide h1 {
+            margin-top: 1.5em;
+        }
+
+        .title-slide p {
+            font-size: 0.7em;
+            color: #7f8c8d;
+            margin-top: 2em;
+        }
+
+        /* Image containers */
+        .reveal img {
+            max-width: 90%;
+            max-height: 600px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .reveal .image-credit {
+            font-size: 0.5em;
+            color: #95a5a6;
+            margin-top: 0.5em;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 1em;
+            margin: 1em 0;
+            font-size: 0.85em;
+        }
+
+        .key-finding {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1em;
+            margin: 1em 0;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        /* Two-column layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2em;
+            align-items: start;
+        }
+
+        /* Two-thirds / one-third layout */
+        .two-thirds-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2em;
+            align-items: center;
+        }
+
+        .two-thirds-layout img {
+            max-width: 100%;
+            max-height: 550px;
+        }
+
+        .two-thirds-layout .text-panel {
+            font-size: 0.75em;
+            text-align: left;
+            padding: 1em;
+        }
+
+        /* Progress indicator styling */
+        .reveal .progress {
+            background: rgba(0, 0, 0, 0.1);
+            height: 3px;
+        }
+
+        .reveal .progress span {
+            background: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Title Slide -->
+            <section class="title-slide">
+                <h1>Global Inequality Analysis</h1>
+                <h2>Why Do PIP and WID Tell Different Stories?</h2>
+                <p>An investigation into the composition of global income inequality</p>
+            </section>
+
+            <!-- Slide 1: Basic Decomposition -->
+            <section>
+                <h2>The Data: Two Different Pictures</h2>
+                <div class="two-thirds-layout">
+                    <div>
+                        <img src="basic_decomposition.png" alt="PIP vs WID Basic Decomposition">
+                    </div>
+                    <div class="text-panel">
+                        <p>There are two major sources of global data on incomes: WID and PIP. They tell very different stories about the nature of global income inequality.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js JavaScript from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+
+    <!-- Initialize Reveal.js -->
+    <script>
+        Reveal.initialize({
+            // Display controls in the bottom right corner
+            controls: true,
+
+            // Display a presentation progress bar
+            progress: true,
+
+            // Display the page number of the current slide
+            slideNumber: true,
+
+            // Push each slide change to the browser history
+            history: true,
+
+            // Enable keyboard shortcuts for navigation
+            keyboard: true,
+
+            // Enable the slide overview mode
+            overview: true,
+
+            // Vertical centering of slides
+            center: true,
+
+            // Enable touch navigation on devices with touch input
+            touch: true,
+
+            // Loop the presentation
+            loop: false,
+
+            // Change the presentation direction to be RTL
+            rtl: false,
+
+            // Transition style
+            transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+            // Transition speed
+            transitionSpeed: 'default', // default/fast/slow
+
+            // Transition style for full page slide backgrounds
+            backgroundTransition: 'fade', // none/fade/slide/convex/concave/zoom
+
+            // Parallax background image
+            parallaxBackgroundImage: '',
+
+            // Parallax background size
+            parallaxBackgroundSize: '',
+
+            // Number of slides away from the current that are visible
+            viewDistance: 3,
+
+            // PDF printing
+            pdfMaxPagesPerSlide: 1
+        });
+    </script>
+</body>
+</html>

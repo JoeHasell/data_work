@@ -2,15 +2,19 @@
 Robust WID data fetching with country-by-country API calls.
 
 This script orchestrates data fetching from WID API by:
-1. Fetching PPP and population data (fast, all countries at once)
-2. Fetching percentile data country-by-country (resilient to API failures)
-3. Tracking progress and allowing resume if interrupted
-4. Combining all country files at the end
+1. Validating existing data files (checks column structure, NA values, etc.)
+2. Fetching PPP and population data (fast, all countries at once)
+3. Fetching percentile data country-by-country (resilient to API failures)
+4. Tracking progress and allowing resume if interrupted
+5. Combining all country files at the end
 
 Usage:
-    python fetch_wid_data.py              # Start fresh fetch
-    python fetch_wid_data.py --resume     # Resume from last saved state
-    python fetch_wid_data.py --country US # Fetch single country only
+    python fetch_wid_data.py                  # Validate then ask before fetching
+    python fetch_wid_data.py --validate-only  # Only run validation, no fetch
+    python fetch_wid_data.py --skip-validation # Skip validation, fetch directly
+    python fetch_wid_data.py --resume         # Resume from last saved state
+    python fetch_wid_data.py --country US     # Fetch single country only
+    python fetch_wid_data.py --combine-only   # Just combine existing files
 """
 
 import os
@@ -189,6 +193,224 @@ def run_stata_script(do_file, timeout=600):
     except Exception as e:
         log_error(f"Error running Stata: {e}")
         return False
+
+
+# =============================================================================
+# DATA VALIDATION FUNCTIONS
+# =============================================================================
+
+def validate_country_file(country_code):
+    """
+    Validate a single country's percentile data file.
+
+    Returns:
+        dict with validation results: {
+            'exists': bool,
+            'has_correct_columns': bool,
+            'missing_columns': list,
+            'row_count': int,
+            'expected_rows': int,
+            'na_rows': int,
+            'issues': list of str (human-readable issues)
+        }
+    """
+    file_path = os.path.join(TEMP_DIR, f"{country_code}_percentiles.csv")
+
+    # Expected structure
+    expected_columns = {'country', 'percentile', 'year', 'avg_posttax', 'avg_pretax',
+                       'share_posttax', 'share_pretax', 'p_low', 'p_high'}
+    expected_row_count = 109  # Should have exactly 109 percentiles
+
+    result = {
+        'exists': os.path.exists(file_path),
+        'has_correct_columns': False,
+        'missing_columns': [],
+        'row_count': 0,
+        'expected_rows': expected_row_count,
+        'na_rows': 0,
+        'na_in_key_columns': {},
+        'invalid_percentiles': False,
+        'issues': []
+    }
+
+    if not result['exists']:
+        result['issues'].append("File does not exist")
+        return result
+
+    try:
+        # Read the file
+        df = pd.read_csv(file_path)
+        result['row_count'] = len(df)
+
+        # Check columns
+        actual_columns = set(df.columns)
+        missing = expected_columns - actual_columns
+
+        if missing:
+            result['missing_columns'] = list(missing)
+            result['issues'].append(f"Missing columns: {', '.join(missing)}")
+        else:
+            result['has_correct_columns'] = True
+
+        # Check row count
+        if result['row_count'] != expected_row_count:
+            result['issues'].append(f"Expected {expected_row_count} rows, found {result['row_count']}")
+
+        # Check for completely NA rows
+        completely_na = df.isna().all(axis=1).sum()
+        if completely_na > 0:
+            result['na_rows'] = completely_na
+            result['issues'].append(f"{completely_na} completely empty rows")
+
+        # Check for NA values in key columns (should have values)
+        key_columns = ['country', 'percentile', 'year', 'p_low', 'p_high']
+        for col in key_columns:
+            if col in df.columns:
+                na_count = df[col].isna().sum()
+                if na_count > 0:
+                    result['na_in_key_columns'][col] = na_count
+                    result['issues'].append(f"{na_count} NA values in '{col}'")
+
+        # Check avg columns - they CAN have NAs (pre-tax or post-tax missing for some countries)
+        # But count them for informational purposes
+        for col in ['avg_pretax', 'avg_posttax']:
+            if col in df.columns:
+                na_count = df[col].isna().sum()
+                result['na_in_key_columns'][col] = na_count
+
+        # Check percentile bounds are valid
+        if 'p_low' in df.columns and 'p_high' in df.columns:
+            invalid_p = ((df['p_low'] < 0) | (df['p_low'] > 1) |
+                        (df['p_high'] < 0) | (df['p_high'] > 1) |
+                        (df['p_low'] >= df['p_high'])).sum()
+            if invalid_p > 0:
+                result['invalid_percentiles'] = True
+                result['issues'].append(f"{invalid_p} rows with invalid percentile bounds")
+
+        # Check year matches expected
+        if 'year' in df.columns:
+            wrong_year = (df['year'] != TARGET_YEAR).sum()
+            if wrong_year > 0:
+                result['issues'].append(f"{wrong_year} rows with wrong year")
+
+        # If no issues found, explicitly note it
+        if len(result['issues']) == 0:
+            result['issues'].append("✓ All checks passed")
+
+    except Exception as e:
+        result['issues'].append(f"Error reading file: {str(e)}")
+
+    return result
+
+
+def validate_all_countries():
+    """
+    Validate all country files and return summary report.
+
+    Returns:
+        dict with summary statistics and list of problematic countries
+    """
+    # Get list of expected countries
+    country_mapping = pd.read_csv(COUNTRY_MAPPING_FILE)
+    all_country_codes = sorted(country_mapping['country'].dropna().unique())
+
+    log_info(f"Validating data for {len(all_country_codes)} countries...")
+    print()
+
+    # Validate each country
+    results = {}
+    for code in all_country_codes:
+        results[code] = validate_country_file(code)
+
+    # Summarize results
+    summary = {
+        'total_countries': len(all_country_codes),
+        'missing_files': [],
+        'wrong_columns': [],
+        'wrong_row_count': [],
+        'has_na_issues': [],
+        'has_other_issues': [],
+        'all_good': []
+    }
+
+    for code, validation in results.items():
+        if not validation['exists']:
+            summary['missing_files'].append(code)
+        elif not validation['has_correct_columns']:
+            summary['wrong_columns'].append(code)
+        elif validation['row_count'] != validation['expected_rows']:
+            summary['wrong_row_count'].append(code)
+        elif validation['na_rows'] > 0 or any(v > 0 for k, v in validation['na_in_key_columns'].items() if k in ['country', 'percentile', 'year', 'p_low', 'p_high']):
+            summary['has_na_issues'].append(code)
+        elif len(validation['issues']) > 1 or validation['issues'][0] != "✓ All checks passed":
+            summary['has_other_issues'].append(code)
+        else:
+            summary['all_good'].append(code)
+
+    return summary, results
+
+
+def print_validation_report(summary, results):
+    """Print a formatted validation report."""
+    print("="*70)
+    print("WID DATA VALIDATION REPORT")
+    print("="*70)
+
+    print(f"\nTotal countries checked: {summary['total_countries']}")
+    print(f"✓ Valid files: {len(summary['all_good'])}")
+    print(f"✗ Files with issues: {summary['total_countries'] - len(summary['all_good'])}")
+
+    if summary['missing_files']:
+        print(f"\n❌ MISSING FILES ({len(summary['missing_files'])} countries):")
+        for code in summary['missing_files'][:10]:
+            print(f"   {code}")
+        if len(summary['missing_files']) > 10:
+            print(f"   ... and {len(summary['missing_files']) - 10} more")
+
+    if summary['wrong_columns']:
+        print(f"\n❌ WRONG COLUMN STRUCTURE ({len(summary['wrong_columns'])} countries):")
+        for code in summary['wrong_columns']:
+            validation = results[code]
+            print(f"   {code}: missing {', '.join(validation['missing_columns'])}")
+
+    if summary['wrong_row_count']:
+        print(f"\n⚠️  WRONG ROW COUNT ({len(summary['wrong_row_count'])} countries):")
+        for code in summary['wrong_row_count'][:10]:
+            validation = results[code]
+            print(f"   {code}: {validation['row_count']} rows (expected {validation['expected_rows']})")
+        if len(summary['wrong_row_count']) > 10:
+            print(f"   ... and {len(summary['wrong_row_count']) - 10} more")
+
+    if summary['has_na_issues']:
+        print(f"\n⚠️  NA/MISSING DATA ISSUES ({len(summary['has_na_issues'])} countries):")
+        for code in summary['has_na_issues'][:10]:
+            validation = results[code]
+            issues = [issue for issue in validation['issues'] if 'NA' in issue or 'empty' in issue]
+            print(f"   {code}: {'; '.join(issues)}")
+        if len(summary['has_na_issues']) > 10:
+            print(f"   ... and {len(summary['has_na_issues']) - 10} more")
+
+    if summary['has_other_issues']:
+        print(f"\n⚠️  OTHER ISSUES ({len(summary['has_other_issues'])} countries):")
+        for code in summary['has_other_issues'][:10]:
+            validation = results[code]
+            print(f"   {code}: {'; '.join(validation['issues'])}")
+        if len(summary['has_other_issues']) > 10:
+            print(f"   ... and {len(summary['has_other_issues']) - 10} more")
+
+    print("\n" + "="*70)
+
+    # Overall assessment
+    total_problems = (len(summary['missing_files']) + len(summary['wrong_columns']) +
+                     len(summary['wrong_row_count']) + len(summary['has_na_issues']) +
+                     len(summary['has_other_issues']))
+
+    if total_problems == 0:
+        log_success("All country files are valid!")
+    else:
+        log_warning(f"{total_problems} countries have data quality issues")
+
+    print("="*70)
 
 
 # =============================================================================
@@ -411,6 +633,10 @@ def main():
                         help='Fetch data for single country only (2-letter code)')
     parser.add_argument('--combine-only', action='store_true',
                         help='Skip fetching, just combine existing country files')
+    parser.add_argument('--validate-only', action='store_true',
+                        help='Only run validation checks, do not fetch data')
+    parser.add_argument('--skip-validation', action='store_true',
+                        help='Skip validation and proceed directly to fetching')
 
     args = parser.parse_args()
 
@@ -420,6 +646,33 @@ def main():
     print("=" * 80)
     print(f"{Colors.BOLD}WID Data Fetching - Robust Country-by-Country Approach{Colors.ENDC}")
     print("=" * 80)
+
+    # Run validation checks first (unless explicitly skipped)
+    if not args.skip_validation:
+        print()
+        summary, results = validate_all_countries()
+        print_validation_report(summary, results)
+        print()
+
+        # If validate-only mode, exit here
+        if args.validate_only:
+            return 0
+
+        # If there are issues and not in special modes, ask for confirmation
+        total_problems = (len(summary['missing_files']) + len(summary['wrong_columns']) +
+                         len(summary['wrong_row_count']) + len(summary['has_na_issues']) +
+                         len(summary['has_other_issues']))
+
+        if not args.resume and not args.combine_only and not args.country:
+            # About to do a full fetch - always ask for confirmation
+            log_warning("You are about to run a full data fetch. This typically takes 100+ minutes.")
+            print()
+            if total_problems > 0:
+                print(f"⚠️  {total_problems} countries have data quality issues that will be addressed.")
+            response = input("Do you want to proceed with fetching? [y/N]: ").strip().lower()
+            if response != 'y':
+                log_info("Fetch aborted by user")
+                return 0
 
     # Load state
     if args.resume:

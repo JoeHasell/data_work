@@ -230,6 +230,82 @@ def plot_inequality_comparison(df, output_file='outputs/inequality_decomposition
     plt.close()
 
 
+def plot_three_bar_comparison(df, output_file='outputs/three_bar_decomposition.png'):
+    """
+    Create stacked bar chart comparing PIP per capita, WID per adult, and WID per capita.
+
+    Args:
+        df: DataFrame with decomposition results
+        output_file: Path to save the chart
+    """
+    print("\n" + "="*70)
+    print("PLOT 4: Three-Bar Comparison (PIP + WID per adult + WID per capita)")
+    print("="*70)
+
+    # Get three analyses
+    analyses = [
+        ('PIP_per_capita', 'PIP\n(per capita)'),
+        ('WID_pretax_per_adult', 'WID Pre-tax\n(per adult)'),
+        ('WID_pretax_per_capita', 'WID Pre-tax\n(per capita)')
+    ]
+
+    datasets = []
+    between_vals = []
+    within_vals = []
+    between_pcts = []
+    within_pcts = []
+
+    for analysis_id, label in analyses:
+        row = df[df['analysis_id'] == analysis_id].iloc[0]
+        datasets.append(label)
+        between_vals.append(row['between_country_mld'])
+        within_vals.append(row['within_country_mld'])
+        between_pcts.append(row['between_country_share'] * 100)
+        within_pcts.append(row['within_country_share'] * 100)
+
+    # Create figure
+    fig, ax = plt.subplots(figsize=(12, 7))
+
+    # Create stacked bars
+    x = np.arange(len(datasets))
+    width = 0.6
+
+    # Plot bars
+    bars_between = ax.bar(x, between_vals, width, label='Between-country', color='#2E86AB')
+    bars_within = ax.bar(x, within_vals, width, bottom=between_vals, label='Within-country', color='#A23B72')
+
+    # Add annotations - Between-country
+    for i, (bar, val, pct) in enumerate(zip(bars_between, between_vals, between_pcts)):
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width() / 2., height / 2,
+                f'{val:.2f}\n({pct:.1f}%)',
+                ha='center', va='center', fontsize=11, fontweight='bold', color='white')
+
+    # Add annotations - Within-country
+    for i, (bar, val, pct) in enumerate(zip(bars_within, within_vals, within_pcts)):
+        height = bar.get_height()
+        bottom = between_vals[i]
+        ax.text(bar.get_x() + bar.get_width() / 2., bottom + height / 2,
+                f'{val:.2f}\n({pct:.1f}%)',
+                ha='center', va='center', fontsize=11, fontweight='bold', color='white')
+
+    # Customize plot
+    ax.set_ylabel('Mean Log Deviation (MLD)', fontsize=12, fontweight='bold')
+    ax.set_title('Global Inequality: Per Capita vs Per Adult (2023)', fontsize=14, fontweight='bold', pad=15)
+    ax.set_xticks(x)
+    ax.set_xticklabels(datasets, fontsize=11)
+    ax.legend(fontsize=11, loc='upper right')
+
+    # Add grid
+    ax.yaxis.grid(True, alpha=0.3, linestyle='--')
+    ax.set_axisbelow(True)
+
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    print(f"Saved: {output_file}")
+    plt.close()
+
+
 def main():
     """Main execution function."""
     print("="*70)
@@ -245,6 +321,7 @@ def main():
     plot_basic_decomposition(df)
     plot_income_concepts(df)
     plot_inequality_comparison(df)
+    plot_three_bar_comparison(df)
 
     print("\n" + "="*70)
     print("ALL PLOTS COMPLETE!")
@@ -253,6 +330,7 @@ def main():
     print("  - outputs/basic_decomposition.png")
     print("  - outputs/income_concepts_decomposition.png")
     print("  - outputs/inequality_decomposition.png")
+    print("  - outputs/three_bar_decomposition.png")
     print("="*70)
 
 

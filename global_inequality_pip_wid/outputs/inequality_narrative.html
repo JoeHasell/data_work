@@ -20,21 +20,21 @@
         }
 
         .reveal h1 {
-            font-size: 2.5em;
+            font-size: 1.8em;
             color: #2c3e50;
             margin-bottom: 0.5em;
         }
 
         .reveal h2 {
-            font-size: 1.8em;
+            font-size: 1.2em;
             color: #34495e;
-            margin-bottom: 0.8em;
+            margin-bottom: 0.6em;
         }
 
         .reveal h3 {
-            font-size: 1.3em;
+            font-size: 1.0em;
             color: #7f8c8d;
-            margin-bottom: 0.5em;
+            margin-bottom: 0.4em;
         }
 
         .reveal p, .reveal li {
@@ -207,7 +207,19 @@
                 <p>An investigation into the composition of global income inequality</p>
             </section>
 
-            <!-- Slide: MLD Overall Formula -->
+            <!-- Slide 2: Basic Decomposition (no title) -->
+            <section>
+                <div class="two-thirds-layout">
+                    <div>
+                        <img src="basic_decomposition.png" alt="PIP vs WID Basic Decomposition">
+                    </div>
+                    <div class="text-panel">
+                        <p>There are two major sources of global data on incomes: WID and PIP. They tell very different stories about the nature of global income inequality.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: MLD Overall Formula -->
             <section class="formula-slide">
                 <h2>Mean Log Deviation (MLD)</h2>
                 <h3>Measuring Overall Inequality</h3>
@@ -228,7 +240,7 @@
                 </div>
             </section>
 
-            <!-- Slide: MLD Decomposition -->
+            <!-- Slide 4: MLD Decomposition -->
             <section class="formula-slide">
                 <h2>MLD Decomposition</h2>
                 <h3>Between-Country and Within-Country Components</h3>
@@ -252,20 +264,7 @@
                 </p>
             </section>
 
-            <!-- Slide 1: Basic Decomposition -->
-            <section>
-                <h2 style="font-size: 1.5em; margin-bottom: 0.5em;">The Data: Two Different Pictures</h2>
-                <div class="two-thirds-layout">
-                    <div>
-                        <img src="basic_decomposition.png" alt="PIP vs WID Basic Decomposition">
-                    </div>
-                    <div class="text-panel">
-                        <p>There are two major sources of global data on incomes: WID and PIP. They tell very different stories about the nature of global income inequality.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Slide 2: Country Contributions -->
+            <!-- Slide 5: Country Contributions -->
             <section>
                 <h2 style="font-size: 1.5em; margin-bottom: 0.5em;">Which Countries Drive Within-Country Inequality?</h2>
                 <div class="two-thirds-layout">
@@ -280,9 +279,84 @@
                 </div>
             </section>
 
-            <!-- Slide 3: Country-Level MLD Comparison -->
+            <!-- Slide 6: Country-Level MLD Comparison -->
             <section>
                 <iframe src="pip_vs_wid_country_mlds.html" width="100%" height="650" style="border:none; display: block; margin: 0 auto;"></iframe>
+            </section>
+
+            <!-- Slide 7: Three-Bar Comparison -->
+            <section>
+                <div class="two-thirds-layout">
+                    <div>
+                        <img src="three_bar_decomposition.png" alt="Three-Bar Decomposition Comparison">
+                    </div>
+                    <div class="text-panel">
+                        <p>Comparing PIP with both WID per adult and WID per capita reveals the impact of the population basis adjustment.</p>
+                        <p style="margin-top: 1em;">WID's per capita adjustment increases the between-country share from 21.7% to 28.3%, but a substantial gap with PIP (69.2%) remains.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Four-Bar Comparison with Post-Tax -->
+            <section>
+                <div class="two-thirds-layout">
+                    <div>
+                        <img src="income_concepts_decomposition.png" alt="Four-Bar Decomposition Including Post-Tax">
+                    </div>
+                    <div class="text-panel" style="font-size: 0.75em;">
+                        <p>Adding WID post-tax income per capita reveals the impact of redistribution through the tax system.</p>
+                        <p style="margin-top: 1em;">Post-tax income shows a substantially higher between-country share (42.4%) compared to pre-tax (28.3%), though still well below PIP's 69.2%.</p>
+                        <p style="margin-top: 1em;">This suggests that within-country redistribution compresses inequality more than differences in mean income across countries.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Appendix: Zero and Negative Incomes -->
+            <section>
+                <h2>Appendix: Zero and Negative Incomes in the Data</h2>
+
+                <div style="font-size: 0.65em; text-align: left; padding: 0 3em; margin-top: 1em; line-height: 1.4;">
+
+                    <p style="margin-bottom: 0.3em;"><strong>PIP Data (22,018 percentile bins):</strong></p>
+                    <ul style="margin: 0 0 1em 1.5em;">
+                        <li style="margin-bottom: 0.2em;">Zero incomes: 0 (0.00%)</li>
+                        <li style="margin-bottom: 0.2em;">Negative incomes: 0 (0.00%)</li>
+                    </ul>
+
+                    <p style="margin-bottom: 0.3em;"><strong>WID Data (22,999 percentile bins):</strong></p>
+                    <ul style="margin: 0 0 0.5em 1.5em;">
+                        <li style="margin-bottom: 0.2em;">Zero incomes: 921 (4.00%)</li>
+                        <li style="margin-bottom: 0.2em;">Negative incomes: 0 (0.00%)</li>
+                        <li style="margin-bottom: 0.2em;">Countries affected: 185 out of 211 (87.7%)</li>
+                        <li style="margin-bottom: 0.2em;"><strong>All zeros concentrated in bottom 5 percentiles</strong> (p0-p5):
+                            <ul style="margin: 0.3em 0 0 1.5em;">
+                                <li style="margin-bottom: 0.2em;">p0-p1: 185 countries</li>
+                                <li style="margin-bottom: 0.2em;">p1-p2: 184 countries</li>
+                                <li style="margin-bottom: 0.2em;">p2-p3: 184 countries</li>
+                                <li style="margin-bottom: 0.2em;">p3-p4: 184 countries</li>
+                                <li style="margin-bottom: 0.2em;">p4-p5: 184 countries</li>
+                                <li style="margin-bottom: 0.2em;">Above p5: 0 countries</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Appendix: Zero Replacement Sensitivity -->
+            <section>
+                <h2>Appendix: Sensitivity to Zero Replacement Value</h2>
+
+                <div class="two-thirds-layout" style="margin-top: 1em;">
+                    <div>
+                        <img src="zero_replacement_sensitivity.png" alt="Zero Replacement Sensitivity Analysis">
+                    </div>
+                    <div class="text-panel" style="font-size: 0.7em;">
+                        <p><strong>Baseline:</strong> Replace zeros with $0.01/day</p>
+                        <p style="margin-top: 0.8em;"><strong>Alternative 1:</strong> Replace zeros with $0.10/day</p>
+                        <p style="margin-top: 0.8em;"><strong>Alternative 2:</strong> Replace zeros with each country's lowest non-zero percentile value</p>
+                        <p style="margin-top: 1.2em;"><strong>Finding:</strong> WID shows modest sensitivity to the replacement method. The between-country share ranges from 28.3% (baseline) to 31.7% (country min), a 3.4 percentage point range.</p>
+                    </div>
+                </div>
             </section>
 
         </div>

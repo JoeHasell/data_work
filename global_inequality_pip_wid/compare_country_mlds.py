@@ -135,21 +135,34 @@ def create_interactive_mld_comparison(pip_mlds, wid_mlds, output_file='outputs/p
             hoverinfo='skip'
         ))
 
-        # Add text annotation on the line (position at ~70% along x-axis)
-        label_x = pip_min + 0.7 * (pip_max - pip_min)
+        # Position labels at different points along x-axis to avoid overlap and ensure visibility
+        # For higher multipliers, position earlier on x-axis to keep within y-axis range
+        if mult == 1:
+            label_x = pip_min + 0.7 * (pip_max - pip_min)
+        elif mult == 2:
+            label_x = pip_min + 0.6 * (pip_max - pip_min)
+        elif mult == 3:
+            label_x = pip_min + 0.5 * (pip_max - pip_min)
+        elif mult == 5:
+            label_x = pip_min + 0.35 * (pip_max - pip_min)
+        else:  # 7x
+            label_x = pip_min + 0.25 * (pip_max - pip_min)
+
         label_y = label_x * mult
 
-        reference_line_annotations.append(
-            dict(
-                x=label_x,
-                y=label_y,
-                text=label_text,
-                showarrow=False,
-                font=dict(size=10, color=color if mult == 1 else 'gray'),
-                bgcolor='rgba(255,255,255,0.7)',
-                borderpad=2
+        # Only add label if it's within the visible y-axis range
+        if label_y <= wid_max:
+            reference_line_annotations.append(
+                dict(
+                    x=label_x,
+                    y=label_y,
+                    text=label_text,
+                    showarrow=False,
+                    font=dict(size=12, color=color if mult == 1 else 'gray'),
+                    bgcolor='rgba(255,255,255,0.8)',
+                    borderpad=3
+                )
             )
-        )
 
     # Add scatter for other countries
     hover_text_other = []
@@ -196,67 +209,34 @@ def create_interactive_mld_comparison(pip_mlds, wid_mlds, output_file='outputs/p
         hovertemplate='%{customdata}<extra></extra>'
     ))
 
-    # Calculate correlation
-    correlation = comparison['mld_pip'].corr(comparison['mld_wid'])
-
-    # Calculate statistics
-    mean_diff = (comparison['mld_wid'] - comparison['mld_pip']).mean()
-    median_diff = (comparison['mld_wid'] - comparison['mld_pip']).median()
-
     # Update layout
-    annotation_text = (f"Correlation: {correlation:.3f}<br>"
-                      f"Mean difference (WID - PIP): {mean_diff:.3f}<br>"
-                      f"Median difference: {median_diff:.3f}<br>"
-                      f"n = {len(comparison)} countries")
-
     fig.update_layout(
         title=dict(
             text='Within-Country Inequality (MLD) by Country<br>PIP vs WID (2023, per capita)',
             x=0.5,
             xanchor='center',
-            font=dict(size=18)
+            font=dict(size=20)
         ),
         xaxis=dict(
             title='PIP Within-Country MLD',
             gridcolor='lightgray',
             gridwidth=0.5,
-            range=[pip_min, pip_max]
+            range=[pip_min, pip_max],
+            titlefont=dict(size=16)
         ),
         yaxis=dict(
             title='WID Within-Country MLD',
             gridcolor='lightgray',
             gridwidth=0.5,
-            range=[wid_min, wid_max]
+            range=[wid_min, wid_max],
+            titlefont=dict(size=16)
         ),
         plot_bgcolor='white',
         hovermode='closest',
-        width=1000,
-        height=1000,
-        showlegend=True,
-        legend=dict(
-            x=0.02,
-            y=0.98,
-            bgcolor='rgba(255,255,255,0.8)',
-            bordercolor='black',
-            borderwidth=1
-        ),
-        annotations=[
-            dict(
-                text=annotation_text,
-                xref='paper',
-                yref='paper',
-                x=0.98,
-                y=0.02,
-                xanchor='right',
-                yanchor='bottom',
-                showarrow=False,
-                bgcolor='rgba(255,240,200,0.8)',
-                bordercolor='black',
-                borderwidth=1,
-                borderpad=10,
-                font=dict(size=11)
-            )
-        ] + reference_line_annotations
+        width=1100,
+        height=700,
+        showlegend=False,
+        annotations=reference_line_annotations
     )
 
     # Save to HTML

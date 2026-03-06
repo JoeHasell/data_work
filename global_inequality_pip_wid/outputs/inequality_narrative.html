@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/white.css">
 
+    <!-- MathJax for mathematical formulas -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <!-- Custom styling -->
     <style>
         .reveal {
@@ -66,6 +69,17 @@
             display: block;
         }
 
+        /* Ensure slides don't overflow */
+        .reveal .slides section {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Adjust heading sizes for content-heavy slides */
+        .reveal section h2 {
+            margin-bottom: 0.5em;
+        }
+
         .reveal .image-credit {
             font-size: 0.5em;
             color: #95a5a6;
@@ -104,11 +118,13 @@
             grid-template-columns: 2fr 1fr;
             gap: 2em;
             align-items: center;
+            max-height: 650px;
         }
 
         .two-thirds-layout img {
             max-width: 100%;
-            max-height: 550px;
+            max-height: 500px;
+            object-fit: contain;
         }
 
         .two-thirds-layout .text-panel {
@@ -126,6 +142,58 @@
         .reveal .progress span {
             background: #3498db;
         }
+
+        /* Formula slide styling */
+        .formula-slide {
+            text-align: left;
+            font-size: 0.7em;
+            padding: 0 2em;
+        }
+
+        .formula-slide h2 {
+            font-size: 1.5em;
+            margin-bottom: 0.4em;
+        }
+
+        .formula-slide h3 {
+            font-size: 1.0em;
+            margin-bottom: 0.4em;
+            margin-top: 0.6em;
+        }
+
+        .formula-slide .formula-box {
+            background-color: #f8f9fa;
+            border: 2px solid #3498db;
+            border-radius: 6px;
+            padding: 0.8em;
+            margin: 0.6em 0;
+            text-align: center;
+        }
+
+        .formula-slide .mjx-math {
+            font-size: 1.0em;
+        }
+
+        .formula-slide .explanation {
+            margin-top: 0.3em;
+            padding-left: 0.8em;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .formula-slide .explanation p {
+            margin: 0.3em 0;
+        }
+
+        .formula-slide ul {
+            margin-left: 1.5em;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+
+        .formula-slide li {
+            margin-bottom: 0.2em;
+        }
     </style>
 </head>
 <body>
@@ -139,9 +207,54 @@
                 <p>An investigation into the composition of global income inequality</p>
             </section>
 
+            <!-- Slide: MLD Overall Formula -->
+            <section class="formula-slide">
+                <h2>Mean Log Deviation (MLD)</h2>
+                <h3>Measuring Overall Inequality</h3>
+
+                <div class="formula-box">
+                    $$\text{MLD} = \sum_{i=1}^{N} \frac{p_i}{P} \ln\left(\frac{\bar{y}}{y_i}\right)$$
+                </div>
+
+                <div class="explanation">
+                    <strong>Where:</strong>
+                    <ul>
+                        <li>\(y_i\) = income of group \(i\)</li>
+                        <li>\(\bar{y}\) = global mean income</li>
+                        <li>\(p_i\) = population of group \(i\)</li>
+                        <li>\(P\) = total global population</li>
+                    </ul>
+                    <p style="margin-top: 1.5em;">Each group's contribution is weighted by their share of the population. Higher values indicate more inequality.</p>
+                </div>
+            </section>
+
+            <!-- Slide: MLD Decomposition -->
+            <section class="formula-slide">
+                <h2>MLD Decomposition</h2>
+                <h3>Between-Country and Within-Country Components</h3>
+
+                <div class="formula-box">
+                    $$\text{MLD}_{\text{between}} = \sum_{c=1}^{C} \frac{P_c}{P} \ln\left(\frac{\bar{y}}{\bar{y}_c}\right)$$
+                </div>
+                <div class="explanation">
+                    <p><strong>Between-country:</strong> Inequality that would exist if everyone in each country earned their country's mean income (\(\bar{y}_c\))</p>
+                </div>
+
+                <div class="formula-box">
+                    $$\text{MLD}_{\text{within}} = \sum_{c=1}^{C} \frac{P_c}{P} \times \text{MLD}_c$$
+                </div>
+                <div class="explanation">
+                    <p><strong>Within-country:</strong> Average of each country's internal inequality (\(\text{MLD}_c\)), weighted by population share</p>
+                </div>
+
+                <p style="margin-top: 1.5em; text-align: center; font-style: italic;">
+                    $$\text{MLD}_{\text{total}} = \text{MLD}_{\text{between}} + \text{MLD}_{\text{within}}$$
+                </p>
+            </section>
+
             <!-- Slide 1: Basic Decomposition -->
             <section>
-                <h2>The Data: Two Different Pictures</h2>
+                <h2 style="font-size: 1.5em; margin-bottom: 0.5em;">The Data: Two Different Pictures</h2>
                 <div class="two-thirds-layout">
                     <div>
                         <img src="basic_decomposition.png" alt="PIP vs WID Basic Decomposition">
@@ -150,6 +263,26 @@
                         <p>There are two major sources of global data on incomes: WID and PIP. They tell very different stories about the nature of global income inequality.</p>
                     </div>
                 </div>
+            </section>
+
+            <!-- Slide 2: Country Contributions -->
+            <section>
+                <h2 style="font-size: 1.5em; margin-bottom: 0.5em;">Which Countries Drive Within-Country Inequality?</h2>
+                <div class="two-thirds-layout">
+                    <div>
+                        <img src="country_contributions.png" alt="Country Contributions to Within-Country Inequality">
+                    </div>
+                    <div class="text-panel">
+                        <p>The within-country component (shown in colors) is a simple sum of contributions from individual countries.</p>
+                        <p style="margin-top: 1em;"><strong>China and India</strong> dominate in both datasets due to their large populations and moderate-to-high inequality.</p>
+                        <p style="margin-top: 1em;">Countries with smaller contributions are grouped as "Other countries" (gray) for clarity.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: Country-Level MLD Comparison -->
+            <section>
+                <iframe src="pip_vs_wid_country_mlds.html" width="100%" height="650" style="border:none; display: block; margin: 0 auto;"></iframe>
             </section>
 
         </div>
@@ -211,6 +344,13 @@
 
             // PDF printing
             pdfMaxPagesPerSlide: 1
+        });
+
+        // Ensure MathJax renders when slides change
+        Reveal.on('slidechanged', () => {
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
         });
     </script>
 </body>
